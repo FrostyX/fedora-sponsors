@@ -7,9 +7,9 @@
 
     <ul>
       <li><a href="#interests">Sponsors by areas of interest</a></li>
+      <li><a href="#languages">Sponsors by native language</a></li>
       <li><a href="#regions">Sponsors by region</a></li>
       <li><a href="#timezones">Sponsors by timezone</a></li>
-      <li><a href="#languages">Sponsors by native language</a></li>
       <li><a href="#all">All sponsors</a></li>
     </ul>
 
@@ -17,6 +17,20 @@
       <h2>Sponsors by areas of interest</h2>
       {% for interest, _sponsors in interests.items() %}
       <h3>{{ interest }}</h3>
+      <ul>
+        {% for sponsor in _sponsors %}
+          <li>
+            <a href="#{{ sponsor['username']}}"> {{ sponsor['human_name'] }}</a>
+          </li>
+        {% endfor %}
+      </ul>
+      {% endfor %}
+    </div>
+
+    <div id="languages">
+      <h2>Sponsors by native language</h2>
+      {% for language, _sponsors in languages.items() %}
+      <h3>{{ language }}</h3>
       <ul>
         {% for sponsor in _sponsors %}
           <li>
@@ -45,20 +59,6 @@
       <h2>Sponsors by timezone</h2>
       {% for timezone, _sponsors in timezones.items() %}
       <h3>{{ timezone }}</h3>
-      <ul>
-        {% for sponsor in _sponsors %}
-          <li>
-            <a href="#{{ sponsor['username']}}"> {{ sponsor['human_name'] }}</a>
-          </li>
-        {% endfor %}
-      </ul>
-      {% endfor %}
-    </div>
-
-    <div id="languages">
-      <h2>Sponsors by native language</h2>
-      {% for language, _sponsors in languages.items() %}
-      <h3>{{ language }}</h3>
       <ul>
         {% for sponsor in _sponsors %}
           <li>

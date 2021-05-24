@@ -1,0 +1,25 @@
+---
+
+# This file contains native, non-english languages and sponsors that
+# speak them.
+#
+#
+# The following defintions might not be accurate, I guessed the
+# languages based on the sponsors timezones.
+
+
+Czech:
+  - msuchy
+  - sharkcz
+
+French:
+  - remi
+  - pingou
+
+Swedish:
+  - scop
+
+German:
+  - karsten
+  - mschwendt
+  - adrian

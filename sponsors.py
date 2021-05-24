@@ -1,6 +1,9 @@
-import pytz
+import sys
+import yaml
 import html
+import pytz
 from datetime import datetime
+from requests import ConnectionError
 from jinja2 import Template
 from fasjson_client import Client
 from jinja2 import Environment, FileSystemLoader
@@ -43,22 +46,33 @@ def render_html(**kwargs):
         child.write(rendered)
 
 
+def sponsor_by_username(username, sponsors):
+    for sponsor in sponsors:
+        if sponsor["username"] == username:
+            return sponsor
+    return None
+
+
 def sponsors_by_areas_of_interest(sponsors):
-    # TODO Parse these from some yaml
-    return {
-        "C/C++": [sponsors[0]],
-        "Python": [sponsors[0], sponsors[1]],
-        "Ruby": [sponsors[2]],
-    }
+    return sponsors_from_yaml("interests.yaml", sponsors)
 
 
 def sponsors_by_native_language(sponsors):
-    # TODO Parse these from some yaml
-    return {
-        "Czech": [sponsors[0]],
-        "French": [sponsors[0], sponsors[1]],
-        "German": [sponsors[2]],
-    }
+    return sponsors_from_yaml("languages.yaml", sponsors)
+
+
+def sponsors_from_yaml(path, sponsors):
+    with open(path, "r") as f:
+        content = yaml.safe_load(f)
+
+    result = {}
+    for header, usernames in content.items():
+        interested = [sponsor_by_username(u, sponsors) for u in usernames]
+        interested = list(filter(None, interested))
+        if not interested:
+            continue
+        result[header] = interested
+    return result
 
 
 def sponsors_by_region(sponsors):
@@ -106,8 +120,13 @@ def sponsors_by_timezone(sponsors):
 
 
 def main():
-    # sponsors = get_sponsors_mock()
-    sponsors = get_sponsors()
+    try:
+        # sponsors = get_sponsors_mock()
+        sponsors = get_sponsors()
+    except ConnectionError:
+        print("Unable to get sponsors, try again.")
+        sys.exit(1)
+
     interests = sponsors_by_areas_of_interest(sponsors)
     regions = sponsors_by_region(sponsors)
     timezones = sponsors_by_timezone(sponsors)

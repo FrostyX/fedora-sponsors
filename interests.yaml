@@ -1,0 +1,36 @@
+---
+
+# This file contains areas of interests related to packaging things
+# into Fedora.
+#
+#
+# The following areas and people assigned to them were picked
+# randomly, only for demonstration purposes.
+
+
+C/C++:
+  - rvokal
+
+Python:
+  - msuchy
+  - ralph
+  - pingou
+
+Haskell:
+  - codeblock
+
+Ruby:
+  - vondruch
+
+Elixir:
+  - codeblock
+
+Functional programming:
+  - codeblock
+
+Web development:
+  - msuchy
+
+Modularity:
+  - sgallagh
+  - ralph
