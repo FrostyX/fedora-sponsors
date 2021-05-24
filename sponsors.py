@@ -16,6 +16,11 @@ def get_sponsors():
     sponsors = [client.get_user(username=sponsor["username"]).result
                 for sponsor in usernames]
 
+    # Set some reasonable defaults
+    for sponsor in sponsors:
+        sponsor["timezone"] = sponsor["timezone"] or "UTC"
+        sponsor["human_name"] = sponsor["human_name"] or sponsor["username"]
+
     # puiterwijk, you prankster!
     for sponsor in sponsors:
         for k, v in sponsor.items():
