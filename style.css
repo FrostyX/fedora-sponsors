@@ -4,3 +4,12 @@
     margin-bottom: 30px;
     min-height: 100%;
 }
+
+.sponsor, .card img {
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+.table-borderless td, .table-borderless th {
+    border: none;
+}

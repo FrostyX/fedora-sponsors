@@ -8,6 +8,7 @@ from requests import ConnectionError
 from jinja2 import Template
 from fasjson_client import Client
 from jinja2 import Environment, FileSystemLoader
+from libravatar import libravatar_url
 
 
 class Sponsor(munch.Munch):
@@ -38,6 +39,10 @@ class Sponsor(munch.Munch):
     def wiki_url(self):
         url = "https://fedoraproject.org/wiki/User:{0}"
         return url.format(self.username)
+
+    @property
+    def libravatar_img_url(self):
+        return libravatar_url(email=self.emails[0], size=200)
 
 
 def get_fas_client():
