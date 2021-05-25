@@ -58,11 +58,25 @@ def get_sponsors_mock():
             for x in usernames]
 
 
-def render_html(**kwargs):
-    jinja_env = Environment(loader=FileSystemLoader("."))
-    template = jinja_env.get_template("sponsors.html.j2")
+def render_templates(**kwargs):
+    templates = [
+        "index.html.j2",
+        "all.html.j2",
+        "interests.html.j2",
+        "languages.html.j2",
+        "regions.html.j2",
+        "timezones.html.j2",
+    ]
+    for name in templates:
+        render_template(name, **kwargs)
+
+
+def render_template(name, **kwargs):
+    jinja_env = Environment(loader=FileSystemLoader("templates"))
+    template = jinja_env.get_template(name)
     rendered = template.render(**kwargs)
-    with open("sponsors.html", "w") as child:
+    dst = name.rstrip(".j2")
+    with open(dst, "w") as child:
         child.write(rendered)
 
 
@@ -141,8 +155,8 @@ def sponsors_by_timezone(sponsors):
 
 def main():
     try:
-        # sponsors = get_sponsors_mock()
-        sponsors = get_sponsors()
+        sponsors = get_sponsors_mock()
+        # sponsors = get_sponsors()
     except ConnectionError:
         print("Unable to get sponsors, try again.")
         sys.exit(1)
@@ -151,7 +165,7 @@ def main():
     regions = sponsors_by_region(sponsors)
     timezones = sponsors_by_timezone(sponsors)
     languages = sponsors_by_native_language(sponsors)
-    render_html(
+    render_templates(
         sponsors=sponsors,
         interests=interests,
         regions=regions,

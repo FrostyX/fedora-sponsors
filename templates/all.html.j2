@@ -1,0 +1,31 @@
+{% extends "layout.html.j2" %}
+{% block content %}
+  <div id="all">
+    <h1>All sponsors</h1>
+    {% for sponsor in sponsors %}
+    <div class="sponsor" id="{{ sponsor.username }}">
+      <h3>{{ sponsor.human_name }}</h3>
+      <table>
+        <tr><th>Username:</th><td>{{ sponsor.username }}</td></tr>
+        <tr><th>Email:</th><td>{{ sponsor.emails | join(', ') }}</td></tr>
+        {% if sponsor['ircnicks'] %}
+        <tr><th>IRC nick:</th><td>{{ sponsor.ircnicks | join(', ') }}</td></tr>
+        {% endif %}
+        <tr><th>Timezone:</th><td>{{ sponsor.timezone }}</td></tr>
+        <tr>
+          <th>Profile:</th>
+          <td>
+            <a href="{{ sponsor.accounts_fpo_url }}">
+              {{ sponsor.accounts_fpo_url }}
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <th>Wiki:</th>
+          <td><a href="{{ sponsor.wiki_url }}">{{ sponsor.wiki_url }}</a></td>
+        </tr>
+      </table>
+    </div>
+    {% endfor %}
+  </div>
+{% endblock %}

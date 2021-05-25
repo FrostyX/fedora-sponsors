@@ -1,0 +1,16 @@
+{% extends "layout.html.j2" %}
+{% block content %}
+  <div id="regions">
+    <h1>Sponsors by region</h1>
+    {% for region, _sponsors in regions.items() %}
+    <h3>{{ region }}</h3>
+    <ul>
+      {% for sponsor in _sponsors %}
+        <li>
+          <a href="./all.html#{{ sponsor.username }}"> {{ sponsor.human_name }}</a>
+        </li>
+      {% endfor %}
+    </ul>
+    {% endfor %}
+  </div>
+{% endblock %}
