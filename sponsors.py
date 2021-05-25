@@ -31,7 +31,12 @@ class Sponsor(munch.Munch):
 
     @property
     def accounts_fpo_url(self):
-        url = "https://accounts.fedoraproject.org/user/{}"
+        url = "https://accounts.fedoraproject.org/user/{0}"
+        return url.format(self.username)
+
+    @property
+    def wiki_url(self):
+        url = "https://fedoraproject.org/wiki/User:{0}"
         return url.format(self.username)
 
 
