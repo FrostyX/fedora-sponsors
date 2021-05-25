@@ -1,0 +1,41 @@
+{% macro sponsors_group(title, sponsors) %}
+  {% if title %}
+    <h2>{{ title }}</h2>
+  {% endif %}
+
+  {% for sponsor in sponsors %}
+    {% if loop.index0 is divisibleby 3 %}
+    <div class="row">
+    {% endif %}
+      <div class="col-sm-4">
+        {{ sponsor_card(sponsor) }}
+      </div>
+    {% if (loop.index is divisibleby 3) or loop.last %}
+    </div>
+    {% endif %}
+  {% endfor %}
+{% endmacro %}
+
+
+{% macro sponsor_card(sponsor) %}
+  <div class="sponsor card" id="{{ sponsor.username }}">
+    <div class="card-body">
+      <img src="{{ sponsor.libravatar_img_url }}">
+      <h3>{{ sponsor.human_name }}</h3>
+      <table class="table table-sm table-borderless">
+        <tr><th>Username:</th><td>{{ sponsor.username }}</td></tr>
+        {% if sponsor['ircnicks'] %}
+        <tr><th>IRC nick:</th><td>{{ sponsor.ircnicks | join(', ') }}</td></tr>
+        {% endif %}
+        <tr><th>Timezone:</th><td>{{ sponsor.timezone }}</td></tr>
+        <tr>
+          <th>See also:</th>
+          <td>
+            <a href="{{ sponsor.accounts_fpo_url }}">Profile</a>,
+            <a href="{{ sponsor.wiki_url }}">Wiki</a>
+          </td>
+        </tr>
+      </table>
+    </div>
+  </div>
+{% endmacro %}

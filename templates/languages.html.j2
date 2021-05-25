@@ -1,16 +1,12 @@
+{% from "./helpers.html.j2" import sponsors_group %}
 {% extends "layout.html.j2" %}
+
 {% block content %}
   <div id="languages">
     <h1>Sponsors by native language</h1>
+
     {% for language, _sponsors in languages.items() %}
-    <h3>{{ language }}</h3>
-    <ul>
-      {% for sponsor in _sponsors %}
-        <li>
-          <a href="./all.html#{{ sponsor.username }}"> {{ sponsor.human_name }}</a>
-        </li>
-      {% endfor %}
-    </ul>
+    {{ sponsors_group(language, _sponsors) }}
     {% endfor %}
   </div>
 {% endblock %}
