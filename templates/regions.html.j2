@@ -1,10 +1,11 @@
-{% from "./helpers.html.j2" import sponsors_group %}
+{% from "./helpers.html.j2" import sponsors_group, toc %}
 {% extends "layout.html.j2" %}
 
 {% block content %}
   <div id="regions">
     <h1>Sponsors by region</h1>
 
+    {{ toc(regions.keys()) }}
     {% for region, _sponsors in regions.items() %}
     {{ sponsors_group(region, _sponsors) }}
     {% endfor %}

@@ -1,6 +1,16 @@
+{% macro toc(titles) %}
+  <h2>Table of Contents</h2>
+  <ul>
+  {% for title in titles %}
+    <li><a href="#{{ title |urlencode }}">{{ title }}</a></li>
+  {% endfor %}
+  </ul>
+{% endmacro %}
+
+
 {% macro sponsors_group(title, sponsors) %}
   {% if title %}
-    <h2>{{ title }}</h2>
+    <h2 id="{{ title |urlencode }}">{{ title }}</h2>
   {% endif %}
 
   {% for sponsor in sponsors %}
