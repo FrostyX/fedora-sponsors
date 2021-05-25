@@ -2,11 +2,37 @@ import sys
 import yaml
 import html
 import pytz
+import munch
 from datetime import datetime
 from requests import ConnectionError
 from jinja2 import Template
 from fasjson_client import Client
 from jinja2 import Environment, FileSystemLoader
+
+
+class Sponsor(munch.Munch):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._html_escape_strings()
+
+    def _html_escape_strings(self):
+        # puiterwijk, you prankster!
+        for k, v in self.items():
+            if type(v) == str:
+                self[k] = html.escape(v)
+
+    @property
+    def timezone(self):
+        return self.get("timezone") or "UTC"
+
+    @property
+    def human_name(self):
+        return self.get("human_name") or self.get("username")
+
+    @property
+    def accounts_fpo_url(self):
+        url = "https://accounts.fedoraproject.org/user/{}"
+        return url.format(self.username)
 
 
 def get_fas_client():
@@ -16,26 +42,15 @@ def get_fas_client():
 def get_sponsors():
     client = get_fas_client()
     usernames = client.list_group_sponsors(groupname="packager").result
-    sponsors = [client.get_user(username=sponsor["username"]).result
-                for sponsor in usernames]
-
-    # Set some reasonable defaults
-    for sponsor in sponsors:
-        sponsor["timezone"] = sponsor["timezone"] or "UTC"
-        sponsor["human_name"] = sponsor["human_name"] or sponsor["username"]
-
-    # puiterwijk, you prankster!
-    for sponsor in sponsors:
-        for k, v in sponsor.items():
-            if type(v) == str:
-                sponsor[k] = html.escape(v)
-    return sponsors
+    return [Sponsor(client.get_user(username=sponsor["username"]).result)
+            for sponsor in usernames]
 
 
 def get_sponsors_mock():
     client = get_fas_client()
     usernames = ["frostyx", "msuchy", "praiskup", "schlupov"]
-    return [client.get_user(username=x).result for x in usernames]
+    return [Sponsor(client.get_user(username=x).result)
+            for x in usernames]
 
 
 def render_html(**kwargs):
@@ -48,7 +63,7 @@ def render_html(**kwargs):
 
 def sponsor_by_username(username, sponsors):
     for sponsor in sponsors:
-        if sponsor["username"] == username:
+        if sponsor.username == username:
             return sponsor
     return None
 
@@ -82,10 +97,10 @@ def sponsors_by_region(sponsors):
                "Indian", "Pacific"}
     result = {}
     for sponsor in sponsors:
-        if not sponsor["timezone"]:
+        if not sponsor.timezone:
             continue
 
-        timezone = sponsor["timezone"].split("/")[0]
+        timezone = sponsor.timezone.split("/")[0]
         if not timezone in regions:
             continue
 
@@ -99,10 +114,10 @@ def sponsors_by_timezone(sponsors):
     utc = pytz.timezone("UTC")
     result = {}
     for sponsor in sponsors:
-        if not sponsor["timezone"]:
+        if not sponsor.timezone:
             continue
 
-        timezone = pytz.timezone(sponsor["timezone"])
+        timezone = pytz.timezone(sponsor.timezone)
         delta = utc.localize(now) - timezone.localize(now)
         hours = int(delta.seconds / 3600)
 

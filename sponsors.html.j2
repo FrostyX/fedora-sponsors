@@ -20,7 +20,7 @@
       <ul>
         {% for sponsor in _sponsors %}
           <li>
-            <a href="#{{ sponsor['username']}}"> {{ sponsor['human_name'] }}</a>
+            <a href="#{{ sponsor.username }}"> {{ sponsor.human_name }}</a>
           </li>
         {% endfor %}
       </ul>
@@ -34,7 +34,7 @@
       <ul>
         {% for sponsor in _sponsors %}
           <li>
-            <a href="#{{ sponsor['username']}}"> {{ sponsor['human_name'] }}</a>
+            <a href="#{{ sponsor.username }}"> {{ sponsor.human_name }}</a>
           </li>
         {% endfor %}
       </ul>
@@ -48,7 +48,7 @@
       <ul>
         {% for sponsor in _sponsors %}
           <li>
-            <a href="#{{ sponsor['username']}}"> {{ sponsor['human_name'] }}</a>
+            <a href="#{{ sponsor.username }}"> {{ sponsor.human_name }}</a>
           </li>
         {% endfor %}
       </ul>
@@ -62,7 +62,7 @@
       <ul>
         {% for sponsor in _sponsors %}
           <li>
-            <a href="#{{ sponsor['username']}}"> {{ sponsor['human_name'] }}</a>
+            <a href="#{{ sponsor.username }}"> {{ sponsor.human_name }}</a>
           </li>
         {% endfor %}
       </ul>
@@ -72,20 +72,20 @@
     <div id="all">
       <h2>All sponsors</h2>
       {% for sponsor in sponsors %}
-      <div class="sponsor" id="{{ sponsor['username'] }}">
-        <h3>{{ sponsor['human_name'] }}</h3>
+      <div class="sponsor" id="{{ sponsor.username }}">
+        <h3>{{ sponsor.human_name }}</h3>
         <table>
-          <tr><th>Username:</th><td>{{ sponsor['username'] }}</td></tr>
-          <tr><th>Email:</th><td>{{ sponsor['emails'] | join(', ') }}</td></tr>
+          <tr><th>Username:</th><td>{{ sponsor.username }}</td></tr>
+          <tr><th>Email:</th><td>{{ sponsor.emails | join(', ') }}</td></tr>
           {% if sponsor['ircnicks'] %}
-          <tr><th>IRC nick:</th><td>{{ sponsor['ircnicks'] | join(', ') }}</td></tr>
+          <tr><th>IRC nick:</th><td>{{ sponsor.ircnicks | join(', ') }}</td></tr>
           {% endif %}
-          <tr><th>Timezone:</th><td>{{ sponsor['timezone'] }}</td></tr>
+          <tr><th>Timezone:</th><td>{{ sponsor.timezone }}</td></tr>
           <tr>
             <th>Profile:</th>
             <td>
-              <a href="https://accounts.fedoraproject.org/user/{{ sponsor['username']}}">
-                https://accounts.fedoraproject.org/user/{{ sponsor['username']}}
+              <a href="{{ sponsor.accounts_fpo_url }}">
+                {{ sponsor.accounts_fpo_url }}
               </a>
             </td>
           </tr>
