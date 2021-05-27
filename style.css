@@ -2,6 +2,24 @@ h2 {
     margin-top: 30px;
 }
 
+.navbar {
+    /* Borrowed from masthead class on */
+    /* https://accounts.fedoraproject.org */
+    border-bottom: 1px solid #ccc;
+    box-shadow: 0 0 10px 2px #ddd;
+    background-image: linear-gradient(to bottom, #eee 0%, #ddd 100%);
+    background-repeat: repeat-x;
+
+    padding: 8px;
+    margin-bottom: 20px;
+}
+
+.navbar img {
+    margin-left: 10px;
+    margin-right: 5px;
+    width: 40px;
+}
+
 .sponsor, .card {
     border-top: 0px;
     border-right: 0px;
