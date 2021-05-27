@@ -49,3 +49,21 @@
     </div>
   </div>
 {% endmacro %}
+
+
+{%- macro static_url(uri) -%}
+  {%- if options["dirhtml"] -%}
+    {{ options.builddir }}/{{ uri }}
+  {%- else -%}
+    ../../{{ uri }}
+  {%- endif -%}
+{%- endmacro -%}
+
+
+{%- macro url(uri) -%}
+  {%- if options["dirhtml"] -%}
+    {{ options.builddir }}/{{ uri }}
+  {%- else -%}
+    ./{{ uri or "index"}}.html
+  {%- endif -%}
+{%- endmacro -%}

@@ -1,4 +1,6 @@
+import os
 import sys
+import shutil
 import yaml
 import html
 import pytz
@@ -61,28 +63,6 @@ def get_sponsors_mock():
     usernames = ["frostyx", "msuchy", "praiskup", "schlupov"]
     return [Sponsor(client.get_user(username=x).result)
             for x in usernames]
-
-
-def render_templates(**kwargs):
-    templates = [
-        "index.html.j2",
-        "all.html.j2",
-        "interests.html.j2",
-        "languages.html.j2",
-        "regions.html.j2",
-        "timezones.html.j2",
-    ]
-    for name in templates:
-        render_template(name, **kwargs)
-
-
-def render_template(name, **kwargs):
-    jinja_env = Environment(loader=FileSystemLoader("templates"))
-    template = jinja_env.get_template(name)
-    rendered = template.render(**kwargs)
-    dst = name.rstrip(".j2")
-    with open(dst, "w") as child:
-        child.write(rendered)
 
 
 def sponsor_by_username(username, sponsors):
@@ -158,6 +138,94 @@ def sponsors_by_timezone(sponsors):
     return result
 
 
+class Builder:
+    def __init__(self, data):
+        self.data = data
+
+    @property
+    def builddir(self):
+        here = os.path.dirname(os.path.realpath(__file__))
+        return os.path.join(here, "_build")
+
+    def dump_html(self, name, content):
+        raise NotImplemented
+
+    @property
+    def templates(self):
+        return [
+            "index.html.j2",
+            "all.html.j2",
+            "interests.html.j2",
+            "languages.html.j2",
+            "regions.html.j2",
+            "timezones.html.j2",
+        ]
+
+    @property
+    def options(self):
+        return {}
+
+    def build(self):
+        for name in self.templates:
+            rendered = self.render_template(
+                name, options=self.options, **self.data)
+            self.dump_html(name, rendered)
+
+    def render_template(self, name, **kwargs):
+        jinja_env = Environment(loader=FileSystemLoader("templates"))
+        template = jinja_env.get_template(name)
+        rendered = template.render(**kwargs)
+        return rendered
+
+    def write(self, path, content):
+        dstdir = os.path.dirname(path)
+        if not os.path.exists(dstdir):
+            os.makedirs(dstdir)
+
+        with open(path, "w") as child:
+            child.write(content)
+
+
+class HtmlBuilder(Builder):
+    @property
+    def builddir(self):
+        return os.path.join(super().builddir, "html")
+
+    def dump_html(self, name, content):
+        dstname = name.strip(".j2")
+        dst = os.path.join(self.builddir, dstname)
+        self.write(dst, content)
+
+
+class DirHtmlBuilder(Builder):
+    @property
+    def builddir(self):
+        return os.path.join(super().builddir, "dirhtml")
+
+    @property
+    def options(self):
+        return {
+            "dirhtml": True,
+            "builddir": self.builddir,
+        }
+
+    def dump_html(self, name, content):
+        dirname = name[:name.find(".")]
+        dstdir = os.path.join(self.builddir, dirname)
+
+        if dirname == "index":
+            dstdir = self.builddir
+
+        dst = os.path.join(dstdir, "index.html")
+        self.write(dst, content)
+
+    def build(self):
+        super().build()
+        here = os.path.dirname(os.path.realpath(__file__))
+        shutil.copy2(os.path.join("style.css"),
+                      os.path.join(self.builddir, "style.css"))
+
+
 def main():
     try:
         sponsors = get_sponsors_mock()
@@ -166,17 +234,17 @@ def main():
         print("Unable to get sponsors, try again.")
         sys.exit(1)
 
-    interests = sponsors_by_areas_of_interest(sponsors)
-    regions = sponsors_by_region(sponsors)
-    timezones = sponsors_by_timezone(sponsors)
-    languages = sponsors_by_native_language(sponsors)
-    render_templates(
-        sponsors=sponsors,
-        interests=interests,
-        regions=regions,
-        timezones=timezones,
-        languages=languages,
-    )
+    data = {
+        "sponsors": sponsors,
+        "interests": sponsors_by_areas_of_interest(sponsors),
+        "regions": sponsors_by_region(sponsors),
+        "timezones": sponsors_by_timezone(sponsors),
+        "languages": sponsors_by_native_language(sponsors),
+    }
+
+    for builder_class in [HtmlBuilder, DirHtmlBuilder]:
+        builder = builder_class(data)
+        builder.build()
 
 
 if __name__ == "__main__":
