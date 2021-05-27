@@ -46,6 +46,13 @@ class Sponsor(munch.Munch):
     def libravatar_img_url(self):
         return libravatar_url(email=self.emails[0], size=200)
 
+    @property
+    def contact_url(self):
+        # This shouldn't be link to the old FAS but at this momment,
+        # accounts.fedoraproject.org doesn't show email addresses
+        url =  "https://admin.fedoraproject.org/accounts/user/view/{0}"
+        return url.format(self.username)
+
 
 def get_fas_client():
     return Client("https://fasjson.fedoraproject.org/")
