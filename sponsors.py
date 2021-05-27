@@ -124,6 +124,9 @@ def sponsors_by_timezone(sponsors):
     now = datetime.now()
     utc = pytz.timezone("UTC")
     result = {}
+
+    # Let's use only integer `hours` values as keys so we can easily order the
+    # dictinary once it is constructed
     for sponsor in sponsors:
         if not sponsor.timezone:
             continue
@@ -131,6 +134,13 @@ def sponsors_by_timezone(sponsors):
         timezone = pytz.timezone(sponsor.timezone)
         delta = utc.localize(now) - timezone.localize(now)
         hours = int(delta.seconds / 3600)
+
+        result.setdefault(hours, [])
+        result[hours].append(sponsor)
+
+    # Transform the integer keys to proper titles
+    titled = {}
+    for hours, sponsors in sorted(result.items()):
 
         if hours > 0:
             title = "UTC +{}"
@@ -140,9 +150,9 @@ def sponsors_by_timezone(sponsors):
             title = "UTC"
 
         title = title.format(hours)
-        result.setdefault(title, [])
-        result[title].append(sponsor)
-    return result
+        titled[title] = sponsors
+
+    return titled
 
 
 class Builder:
