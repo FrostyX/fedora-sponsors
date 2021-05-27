@@ -8,13 +8,14 @@
 # randomly, only for demonstration purposes.
 
 
-C/C++:
-  - rvokal
-
 Python:
   - msuchy
   - ralph
   - pingou
+
+C/C++:
+  - rvokal
+  - contyk
 
 Haskell:
   - codeblock
