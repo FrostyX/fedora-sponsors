@@ -1,5 +1,4 @@
 {% macro toc(titles) %}
-  <h2>Table of Contents</h2>
   <ul>
   {% for title in titles %}
     <li><a href="#{{ title |urlencode }}">{{ title }}</a></li>
