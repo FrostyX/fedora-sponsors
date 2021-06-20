@@ -8,29 +8,81 @@
 # randomly, only for demonstration purposes.
 
 
-Python:
-  - msuchy
-  - pingou
+- id: modularity
+  users:
+  - sgallagh
+  - ralph
 
-C/C++:
+- id: containers
+- id: games
+- id: xfce
+- id: gnome
+
+- id: kde
+  title: KDE
+
+- id: epel
+  title: EPEL
+
+
+# Areas based on
+# https://developer.fedoraproject.org/tech.html
+
+- id: dotnet
+  title: .NET
+
+- id: cpp
+  title: C/C++
+  users:
   - rvokal
   - psabata
 
-Haskell:
+- id: elixir
+  users:
   - codeblock
 
-Ruby:
+- id: golang
+  title: Go
+
+- id: haskell
+  users:
+  - codeblock
+
+- id: java
+
+- id: nodejs
+  title: Node.js
+
+- id: Perl
+
+- id: php
+  title: PHP
+
+- id: python
+  users:
+  - msuchy
+  - pingou
+
+- id: rlang
+  title: R
+
+- id: ruby
+  users:
   - vondruch
 
-Elixir:
-  - codeblock
+- id: rust
+- id: databases
 
-Functional programming:
-  - codeblock
 
-Web development:
+# Areas based on
+# https://developer.fedoraproject.org/start.html
+
+- id: web
+  title: Web development
+  users:
   - msuchy
 
-Modularity:
-  - sgallagh
-  - ralph
+- id: command-line
+- id: desktop
+- id: mobile
+- id: embeded

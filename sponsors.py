@@ -92,12 +92,14 @@ def sponsors_from_yaml(path, sponsors):
         content = yaml.safe_load(f)
 
     result = {}
-    for header, usernames in content.items():
+    for item in content:
+        usernames = item.get("users", [])
         interested = [sponsor_by_username(u, sponsors) for u in usernames]
         interested = list(filter(None, interested))
         if not interested:
             continue
-        result[header] = interested
+        title = item.get("title", item["id"].capitalize())
+        result[title] = interested
     return result
 
 

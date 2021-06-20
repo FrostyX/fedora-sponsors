@@ -3,23 +3,134 @@
 # This file contains native, non-english languages and sponsors that
 # speak them.
 #
+# List of languages taken from
+# https://en.wikipedia.org/wiki/List_of_languages_by_number_of_native_speakers#Nationalencyklopedin_(2010)
 #
 # The following defintions might not be accurate, I guessed the
 # languages based on the sponsors timezones.
 
 
-Czech:
-  - msuchy
-  - sharkcz
+- id: mandarin
+- id: spanish
+- id: english
+- id: hindi
+- id: arabic
+- id: portuguese
+- id: bengali
+- id: russian
+- id: japanese
+- id: punjabi
 
-French:
-  - remi
-  - pingou
-
-Swedish:
-  - scop
-
-German:
+- id: german
+  users:
   - karsten
   - mschwendt
   - adrian
+
+- id: javanese
+- id: wu
+- id: malay
+- id: telugu
+- id: vietnamese
+- id: korean
+
+- id: french
+  users:
+  - remi
+  - pingou
+
+- id: marathi
+- id: tamil
+- id: urdu
+- id: turkish
+- id: italian
+- id: yue
+- id: thai
+- id: gujarati
+- id: jin
+- id: southern Min
+- id: persian
+- id: polish
+- id: pashto
+- id: kannada
+- id: xiang
+- id: malayalam
+- id: sundanese
+- id: hausa
+- id: odia
+- id: burmese
+- id: hakka
+- id: ukrainian
+- id: bhojpuri
+- id: tagalog
+- id: yoruba
+- id: maithili
+- id: uzbek
+- id: sindhi
+- id: amharic
+- id: fula
+- id: romanian
+- id: oromo
+- id: igbo
+- id: azerbaijani
+- id: awadhi
+- id: gan
+- id: cebuano
+- id: dutch
+- id: kurdish
+
+- id: serbo-croatian
+  title: Serbo-Croatian
+
+- id: malagasy
+- id: saraiki
+- id: nepali
+- id: sinhala
+- id: chittagonian
+- id: zhuang
+- id: khmer
+- id: turkmen
+- id: assamese
+- id: madurese
+- id: somali
+- id: marwari
+- id: magahi
+- id: haryanvi
+- id: hungarian
+- id: chhattisgarhi
+- id: greek
+- id: chewa
+- id: deccan
+- id: akan
+- id: kazakh
+- id: sylheti
+- id: zulu
+
+- id: czech
+  users:
+  - msuchy
+  - sharkcz
+
+- id: kinyarwanda
+- id: dhundhari
+
+- id: haitian
+  title: Haitian Creole
+
+- id: ilocano
+- id: quechua
+- id: kirundi
+
+- id: swedish
+  users:
+  - scop
+
+- id: hmong
+- id: shona
+- id: uyghur
+- id: ilonggo
+- id: mossi
+- id: xhosa
+- id: belarusian
+- id: balochi
+- id: konkani
