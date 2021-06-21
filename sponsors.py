@@ -53,6 +53,10 @@ class Sponsor(munch.Munch):
         url =  "https://admin.fedoraproject.org/accounts/user/view/{0}"
         return url.format(self.username)
 
+    @property
+    def is_active(self):
+        return getattr(self, "active", False)
+
 
 def get_fas_client():
     return Client("https://fasjson.fedoraproject.org/")
@@ -157,6 +161,27 @@ def sponsors_by_timezone(sponsors):
     return titled
 
 
+def set_sponsors_activity(sponsors):
+    here = os.path.dirname(os.path.realpath(__file__))
+    path = os.path.join(here, "_build/active-sponsors.list")
+    try:
+        with open(path) as f:
+            usernames = {x.strip() for x in f.readlines()}
+    except FileNotFoundError:
+        print("Cannot find {0} ... skipping".format(path))
+
+    active = []
+    for username in usernames:
+        for i, sponsor in enumerate(sponsors):
+            if username == sponsor.username:
+                sponsor.update({"active": True})
+                active.append(sponsors.pop(i))
+                break
+
+    for sponsor in reversed(active):
+        sponsors.insert(0, sponsor)
+
+
 class Builder:
     def __init__(self, data):
         self.data = data
@@ -253,6 +278,7 @@ def main():
         print("Unable to get sponsors, try again.")
         sys.exit(1)
 
+    set_sponsors_activity(sponsors)
     data = {
         "sponsors": sponsors,
         "interests": sponsors_by_areas_of_interest(sponsors),

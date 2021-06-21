@@ -27,7 +27,8 @@
 
 
 {% macro sponsor_card(sponsor) %}
-  <div class="sponsor card" id="{{ sponsor.username }}">
+  <div class="sponsor card {% if not sponsor.is_active %}muted{% endif %}"
+       id="{{ sponsor.username }}">
     <div class="card-body">
       <img src="{{ sponsor.libravatar_img_url }}">
       <h3>{{ sponsor.human_name }}</h3>

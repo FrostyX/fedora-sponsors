@@ -15,6 +15,20 @@ sponsors.
 
 ## Development
 
+Create `~/.config/fedora` in the following format:
+
+```
+[main]
+username = frostyx
+password = mysecretpassword
+```
+
+Obtain the statistics about the latest sponsor activity
+
+```
+$ python activity.py
+```
+
 Fetch the up-to-date information about sponsors and build the page
 
 ```

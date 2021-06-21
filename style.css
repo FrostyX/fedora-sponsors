@@ -41,6 +41,15 @@ h2 {
     margin-bottom: 15px;
 }
 
+.sponsor.card.muted,
+.sponsor.card.muted table {
+    color: var(--secondary);
+}
+
+.sponsor.card.muted img {
+    filter: grayscale(100%);
+}
+
 .table-borderless td, .table-borderless th {
     border: none;
 }
