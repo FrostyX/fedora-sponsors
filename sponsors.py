@@ -283,12 +283,12 @@ class DirHtmlBuilder(Builder):
         self.write(dst, content)
 
     def build(self):
+        super().build()
         here = os.path.dirname(os.path.realpath(__file__))
         filenames = ["style.css", "fedora-logo.png"]
         for filename in filenames:
             shutil.copy2(os.path.join(filename),
                         os.path.join(self.builddir, filename))
-        super().build()
 
     def builddir_rel_path(self, template_name):
         """
@@ -297,6 +297,28 @@ class DirHtmlBuilder(Builder):
         if template_name == "index.html.j2":
             return "./"
         return "../"
+
+
+class ProductionBuilder(DirHtmlBuilder):
+    """
+    This builder shouldn't be necessary and theoretically it should be possible
+    to implement `DirHtmlBuilder` properly, to produce output, that can be
+    viewed both locally and when deployed to the production instance.
+
+    I am struggling to implement this and I don't want to waste any more time on
+    this, so I am creating a builder specially for the output that is going to
+    be deployed to production.
+
+    Don't bother review it locally, it will look broken.
+    """
+
+    @property
+    def builddir(self):
+        base_builddir = super(DirHtmlBuilder, self).builddir
+        return os.path.join(base_builddir, "production")
+
+    def builddir_rel_path(self, template_name):
+        return "./"
 
 
 def main():
@@ -317,7 +339,7 @@ def main():
         "languages": sponsors_by_native_language(sponsors),
     }
 
-    for builder_class in [HtmlBuilder, DirHtmlBuilder]:
+    for builder_class in [HtmlBuilder, DirHtmlBuilder, ProductionBuilder]:
         builder = builder_class(data)
         builder.build()
 
