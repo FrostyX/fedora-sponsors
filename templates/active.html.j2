@@ -1,0 +1,9 @@
+{% from "./helpers.html.j2" import sponsors_group %}
+{% extends "layout.html.j2" %}
+
+{% block content %}
+  <div id="active">
+    <h1>Active sponsors</h1>
+    {{ sponsors_group(None, active) }}
+  </div>
+{% endblock %}

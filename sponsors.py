@@ -161,6 +161,10 @@ def sponsors_by_timezone(sponsors):
     return titled
 
 
+def active_sponsors(sponsors):
+    return [sponsor for sponsor in sponsors if sponsor.is_active]
+
+
 def set_sponsors_activity(sponsors):
     here = os.path.dirname(os.path.realpath(__file__))
     path = os.path.join(here, "_build/active-sponsors.list")
@@ -198,6 +202,7 @@ class Builder:
     def templates(self):
         return [
             "index.html.j2",
+            "active.html.j2",
             "all.html.j2",
             "interests.html.j2",
             "languages.html.j2",
@@ -281,6 +286,7 @@ def main():
     set_sponsors_activity(sponsors)
     data = {
         "sponsors": sponsors,
+        "active": active_sponsors(sponsors),
         "interests": sponsors_by_areas_of_interest(sponsors),
         "regions": sponsors_by_region(sponsors),
         "timezones": sponsors_by_timezone(sponsors),
