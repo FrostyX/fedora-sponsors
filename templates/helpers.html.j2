@@ -53,17 +53,13 @@
 
 
 {%- macro static_url(uri) -%}
-  {%- if options["dirhtml"] -%}
-    {{ options.builddir }}/{{ uri }}
-  {%- else -%}
-    ../../{{ uri }}
-  {%- endif -%}
+  {{ builddir_rel_path }}{{ uri }}
 {%- endmacro -%}
 
 
 {%- macro url(uri) -%}
   {%- if options["dirhtml"] -%}
-    {{ options.builddir }}/{{ uri }}
+    {{ builddir_rel_path }}{{ uri }}
   {%- else -%}
     ./{{ uri or "index"}}.html
   {%- endif -%}

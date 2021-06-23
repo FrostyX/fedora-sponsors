@@ -216,8 +216,13 @@ class Builder:
 
     def build(self):
         for name in self.templates:
+            builddir = self.builddir_rel_path(name)
             rendered = self.render_template(
-                name, options=self.options, **self.data)
+                name,
+                options=self.options,
+                builddir_rel_path=builddir,
+                **self.data
+            )
             self.dump_html(name, rendered)
 
     def render_template(self, name, **kwargs):
@@ -233,6 +238,15 @@ class Builder:
 
         with open(path, "w") as child:
             child.write(content)
+
+    def builddir_rel_path(self, template_name):
+        """
+        Path to the builddir but relative from the rendered template
+        """
+        # FIXME this is not really true, the relative path to builddir for HTML
+        # (and/or base) builder is ./ but we need this path mainly only for
+        # static files in HTML builder, so let's do such nasty workaround.
+        return "../../"
 
 
 class HtmlBuilder(Builder):
@@ -269,10 +283,20 @@ class DirHtmlBuilder(Builder):
         self.write(dst, content)
 
     def build(self):
-        super().build()
         here = os.path.dirname(os.path.realpath(__file__))
-        shutil.copy2(os.path.join("style.css"),
-                      os.path.join(self.builddir, "style.css"))
+        filenames = ["style.css", "fedora-logo.png"]
+        for filename in filenames:
+            shutil.copy2(os.path.join(filename),
+                        os.path.join(self.builddir, filename))
+        super().build()
+
+    def builddir_rel_path(self, template_name):
+        """
+        Path to the builddir but relative from the rendered template
+        """
+        if template_name == "index.html.j2":
+            return "./"
+        return "../"
 
 
 def main():
