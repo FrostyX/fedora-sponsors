@@ -1,0 +1,29 @@
+from fasjson_client import Client
+
+
+# https://fasjson-client.readthedocs.io/en/latest/migration.html
+client = Client("https://fasjson.fedoraproject.org/")
+
+
+
+
+sponsor_usernames = [sponsor["username"] for sponsor in
+                     client.list_group_sponsors(groupname="packager").result]
+
+for username in sponsor_usernames:
+    sponsor = client.get_user(username=username).result
+    import ipdb; ipdb.set_trace()
+    print(sponsor["human_name"])
+    print("Username: {}".format(sponsor["username"]))
+    print("Email: {}".format(", ".join(sponsor["emails"])))
+    print("IRC nick: {}".format(", ".join(sponsor["ircnicks"])))
+    print("Timezone: {}".format(sponsor["timezone"]))
+    print("Profile: https://accounts.fedoraproject.org/user/{}/"
+          .format(sponsor["username"]))
+    print("")
+    # TODO Image
+    # TODO Website
+    # TODO Github URL
+    # TODO Gitlab URL
+    # TODO Wiki URL
+    # TODO Area of expertise

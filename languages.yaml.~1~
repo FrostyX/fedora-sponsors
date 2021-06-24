@@ -1,0 +1,35 @@
+---
+
+# This file contains native, non-english languages and sponsors that
+# speak them.
+#
+#
+# The following defintions might not be accurate, I guessed the
+# languages based on the sponsors timezones.
+
+C/C++:
+  - rvokal
+
+Python:
+  - msuchy
+  - ralph
+  - pingou
+
+Haskell:
+  - codeblock
+
+Ruby:
+  - vondruch
+
+Elixir:
+  - codeblock
+
+Functional programming:
+  - codeblock
+
+Web development:
+  - msuchy
+
+Modularity:
+  - sgallagh
+  - ralph
