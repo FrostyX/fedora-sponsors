@@ -22,41 +22,17 @@ bz = bugzilla.Bugzilla(url='https://bugzilla.redhat.com/xmlrpc.cgi')
 map_id_to_name = {}
 def convert_id_to_name(user_id):
     if user_id not in map_id_to_name:
-        map_id_to_name[user_id] = get_person_by_id_safe(user_id).username
+        map_id_to_name[user_id] = client.person_by_id(user_id).username
     return map_id_to_name[user_id]
-
-
-def get_safely(function, *args, **kwargs):
-    """
-    Obtaining person information can fail because temporary network issues or
-    server overload. Try again until we get the info successfully.
-    """
-    try:
-        return function(*args, **kwargs)
-    except (ServerError, requests.HTTPError):
-        time.sleep(5)
-        return get_safely(*args, **kwargs)
-
-
-def get_person_by_id_safe(user_id):
-    return get_safely(client.person_by_id, user_id)
-
-
-def get_fas_user_safe(username):
-    return get_safely(client.person_by_username, username)
-
-
-def get_bz_user_safe(bugzilla_email):
-    return get_safely(bz.getuser, bugzilla_email)
 
 
 def process_user(username):
     good_guy = False
-    fas_user = get_fas_user_safe(username)
+    fas_user = client.person_by_username(username)
     if fas_user.status != u'active':
         return None
     try:
-        human_name = get_bz_user_safe(fas_user.bugzilla_email).real_name
+        human_name = bz.getuser(fas_user.bugzilla_email).real_name
     except xmlrpc.client.Fault:
         return good_guy
 
@@ -109,6 +85,18 @@ def process_user(username):
 
     return fas_user if good_guy else False
 
+
+def process_user_safe(username):
+    """
+    Obtaining person information can fail because temporary network issues or
+    server overload. Try again until we get the info successfully.
+    """
+    try:
+        return process_user(username)
+    except (ServerError, requests.RequestException):
+        time.sleep(5)
+        return process_user_safe(username)
+
 def config_value(raw_config, key):
     try:
         if six.PY3:
@@ -150,7 +138,7 @@ for role in packager_group.approved_roles:
 
 good_guys = []
 for sponsor in sponsors:
-    good_guys.append(process_user(sponsor))
+    good_guys.append(process_user_safe(sponsor))
 
 good_guys_usernames = [sponsor.username for sponsor in good_guys if sponsor]
 here = os.path.dirname(os.path.realpath(__file__))
