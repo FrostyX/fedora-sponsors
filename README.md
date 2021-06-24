@@ -1,7 +1,5 @@
 # Fedora Packager Sponsors
 
-https://docs.pagure.org/fedora-sponsors
-
 A static page displaying list of all current Fedora packager
 sponsors.
 
@@ -28,13 +26,13 @@ password = mysecretpassword
 Obtain the statistics about the latest sponsor activity
 
 ```
-$ make activity
+$ python activity.py
 ```
 
 Fetch the up-to-date information about sponsors and build the page
 
 ```
-$ make build
+$ python sponsors.py
 ```
 
 Navigate to `_build/html/index.html` in a web browser.
@@ -42,14 +40,7 @@ Navigate to `_build/html/index.html` in a web browser.
 
 ## Deployment
 
-Deploy the latest build to production
-
-```
-$ make deploy
-```
-
-The production instance
-https://docs.pagure.org/fedora-sponsors
+TBD
 
 
 ## Screenshots
