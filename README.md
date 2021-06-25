@@ -15,6 +15,65 @@ sponsors.
   - Timezones
 
 
+## What if I am a sponsor
+
+If you are a Fedora packager sponsor, please make sure to configure
+your areas of interests and your native languages. There are two
+possible ways to do it, choose whichever you prefer.
+
+In this repository, there are [interests.yaml][interests] and
+[languages.yaml][languages] configuration files. Both use the same
+format, e.g.
+
+```yaml
+- id: german
+- id: sweedish
+- id: czech
+```
+
+
+### A) Use the upstream config
+
+Find groups in the config that you would like to assign yourself to
+and do it in the following fashion
+
+```yaml
+- id: czech
+  users:
+  - msuchy
+  - frostyx
+```
+
+
+### B) Your personal config on fedorapeople.org
+
+Every Fedora user has an access to their own web hosting on
+http://fedorapeople.org . For more information, please read the
+[official documentation][fedorapeople-docs].
+
+Connect to your fedorapeople hosting and create the following file
+
+```
+$ ssh <USER>@fedorapeople.org
+$ vim public_html/sponsor.yaml
+```
+
+Mine would look like this
+
+```yaml
+interests:
+- modularity
+- web
+- command-line
+
+languages:
+- czech
+```
+
+The list items are ID keys from the [interests.yaml][interests] and
+[languages.yaml][languages] files.
+
+
 ## Development
 
 Create `~/.config/fedora` in the following format:
@@ -80,3 +139,6 @@ Page with grouped sponsors into the areas that they are interested in:
 [packager-sponsors-rfe]: https://pagure.io/packager-sponsors/issue/470
 [msuchy-flock]: https://www.youtube.com/watch?v=yBjPLrD77p4
 [mailing-list-thread]: https://lists.fedoraproject.org/archives/list/devel@lists.fedoraproject.org/thread/IISNS57OVFFGPCZWUPZGZXUVBAMW74VZ/
+[interests]: https://github.com/FrostyX/fedora-sponsors/blob/main/interests.yaml
+[languages]: https://github.com/FrostyX/fedora-sponsors/blob/main/languages.yaml
+[fedorapeople-docs]: https://fedoraproject.org/wiki/Infrastructure/fedorapeople.org
