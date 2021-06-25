@@ -1,6 +1,9 @@
 activity:
 	python activity.py
 
+groups:
+	python groups.py
+
 build:
 	python sponsors.py
 

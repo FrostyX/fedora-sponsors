@@ -31,6 +31,13 @@ Obtain the statistics about the latest sponsor activity
 $ make activity
 ```
 
+Obtain each and everyone's personal sponsor config from
+fedorapeople.org
+
+```
+$ make groups
+```
+
 Fetch the up-to-date information about sponsors and build the page
 
 ```

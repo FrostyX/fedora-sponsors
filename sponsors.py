@@ -84,16 +84,22 @@ def sponsor_by_username(username, sponsors):
 
 
 def sponsors_by_areas_of_interest(sponsors):
-    return sponsors_from_yaml("interests.yaml", sponsors)
+    return sponsors_from_yaml("_build/interests.yaml", sponsors)
 
 
 def sponsors_by_native_language(sponsors):
-    return sponsors_from_yaml("languages.yaml", sponsors)
+    return sponsors_from_yaml("_build/languages.yaml", sponsors)
 
 
 def sponsors_from_yaml(path, sponsors):
-    with open(path, "r") as f:
-        content = yaml.safe_load(f)
+    content = []
+
+    try:
+        with open(path, "r") as f:
+            content = yaml.safe_load(f)
+    except FileNotFoundError:
+        print("Missing {0} file, you should probably run `make groups'"
+              .format(path))
 
     result = {}
     for item in content:
