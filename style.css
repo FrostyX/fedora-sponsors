@@ -62,7 +62,8 @@ h2 {
     height: 250px;
 }
 
-.footer a {
+.footer a,
+.footer span {
     /* Borrowed from https://accounts.fedoraproject.org */
     color: rgba(255,255,255,0.5);
     border-bottom: 1px dotted rgba(255,255,255,0.2);

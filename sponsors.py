@@ -189,6 +189,11 @@ def set_sponsors_activity(sponsors):
         sponsors.insert(0, sponsor)
 
 
+def build_tag():
+    now = datetime.now()
+    return now.strftime("%Y-%m-%d")
+
+
 class Builder:
     def __init__(self, data):
         self.data = data
@@ -340,6 +345,7 @@ def main():
         "regions": sponsors_by_region(sponsors),
         "timezones": sponsors_by_timezone(sponsors),
         "languages": sponsors_by_native_language(sponsors),
+        "build_tag": build_tag(),
     }
 
     for builder_class in [HtmlBuilder, DirHtmlBuilder, ProductionBuilder]:
