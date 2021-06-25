@@ -104,6 +104,9 @@ def sponsors_from_yaml(path, sponsors):
             continue
         title = item.get("title", item["id"].capitalize())
         result[title] = interested
+
+    for _, group in result.items():
+        set_sponsors_activity(group)
     return result
 
 
