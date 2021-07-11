@@ -73,6 +73,11 @@ languages:
 The list items are ID keys from the [interests.yaml][interests] and
 [languages.yaml][languages] files.
 
+Please don't be concerned if you don't see your configuration
+immediately propagated into the production instance. It is a
+statically generated site, so your configuration will be used during
+the next rebuild.
+
 
 ## Development
 
