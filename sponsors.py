@@ -44,7 +44,7 @@ class Sponsor(munch.Munch):
 
     @property
     def libravatar_img_url(self):
-        return libravatar_url(email=self.emails[0], size=200)
+        return libravatar_url(email=self.emails[0], size=200, default="retro")
 
     @property
     def contact_url(self):
