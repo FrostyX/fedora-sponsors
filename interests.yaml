@@ -153,8 +153,6 @@
 - id: server
 - id: sway
   title: Sway
-- id: xfce
-  title: Xfce
 - id: 3d-printing
   title: 3D Printing
 
