@@ -87,10 +87,78 @@
 - id: mobile
 - id: embedded
 
+# Areas based on
+# https://fedoraproject.org/wiki/Category:SIGs
+#
+# Listing an interest need not imply SIG membership.
+
+# Alternative architectures
+- id: arm
+  title: ARM
+- id: mips
+  title: MIPS
+- id: powerpc
+  title: PowerPC
+- id: s390x
+  title: S390X
+
+# Languages not listed elsewhere
+- id: ada
+  title: Ada
+- id: erlang
+  title: Erlang
+- id: graphql
+  title: GraphQL
+- id: nosql
+  title: NoSQL
+
+# Selection of SIGs representing interests not listed elsewhere. (If you think
+# an omitted SIG is relevant, just add it.)
+- id: amateur-radio
+  title: Amateur radio
+- id: astronomy
+- id: atomic
+  title: Atomic
+- id: audio-creation
+  title: Audio Creation
+- id: big-data
+  title: Big DAta
+- id: cloud
+- id: education
+- id: fonts
+- id: formal-methods
+  title: Formal Methods
+- id: gis
+  title: Geographic Information Systems
+- id: i3
+- id: kubernetes
+- id: lxde
+  title: LXDE
+- id: machine-learning
+  title: machine learning
+- id: medical
+- id: neuro
+  title: neuroscience and neuroimaging
+- id: pantheon
+  title: Pantheon
+- id: printing
+- id: quantum
+  title: quantum computing
+- id: red-team
+  title: Red Team
+- id: robotics
+- id: sci-tech
+  title: science and technology
+- id: security
+- id: server
+- id: sway
+  title: Sway
+- id: xfce
+  title: Xfce
+- id: 3d-printing
+  title: 3D Printing
+
 # Other manually added areas of interest
 
 - id: lua
   title: Lua
-
-- id: 3d-printing
-  title: 3D Printing
