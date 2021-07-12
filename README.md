@@ -27,7 +27,7 @@ format, e.g.
 
 ```yaml
 - id: german
-- id: sweedish
+- id: swedish
 - id: czech
 ```
 
