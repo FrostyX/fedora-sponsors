@@ -86,3 +86,11 @@
 - id: desktop
 - id: mobile
 - id: embedded
+
+# Other manually added areas of interest
+
+- id: lua
+  title: Lua
+
+- id: 3d-printing
+  title: 3D Printing
