@@ -1,5 +1,6 @@
 import os
 import sys
+import time
 import shutil
 import yaml
 import html
@@ -136,35 +137,42 @@ def sponsors_by_region(sponsors):
 
 
 def sponsors_by_timezone(sponsors):
-    now = datetime.now()
-    utc = pytz.timezone("UTC")
     result = {}
 
-    # Let's use only integer `hours` values as keys so we can easily order the
+    # Let's use only numeric `seconds` values as keys so we can easily order the
     # dictinary once it is constructed
     for sponsor in sponsors:
         if not sponsor.timezone:
             continue
 
+        # https://stackoverflow.com/a/5537943/3285282
         timezone = pytz.timezone(sponsor.timezone)
-        delta = utc.localize(now) - timezone.localize(now)
-        hours = int(delta.seconds / 3600)
+        timezone_now = datetime.now(timezone)
+        seconds = timezone_now.utcoffset().total_seconds()
 
-        result.setdefault(hours, [])
-        result[hours].append(sponsor)
+        result.setdefault(seconds, [])
+        result[seconds].append(sponsor)
 
-    # Transform the integer keys to proper titles
+    # Transform the numeric keys to proper titles
     titled = {}
-    for hours, sponsors in sorted(result.items()):
-
-        if hours > 0:
+    for seconds, sponsors in sorted(result.items()):
+        # First, let's figure out the title format
+        if seconds > 0:
             title = "UTC +{}"
-        elif hours < 0:
+        elif seconds < 0:
             title = "UTC {}"
         else:
             title = "UTC"
 
-        title = title.format(hours)
+        # If the offset is only hours, simply return its integer value
+        # Otherwise calculate also the minutes offset
+        hours = seconds/60/60
+        if hours == int(hours):
+            offset = int(hours)
+        else:
+            offset = time.strftime("%H:%M", time.gmtime(seconds)).lstrip("0")
+
+        title = title.format(offset)
         titled[title] = sponsors
 
     return titled
