@@ -16,6 +16,9 @@
 - id: containers
 - id: games
 - id: xfce
+  users:
+  - nonamedotc
+
 - id: gnome
 
 - id: kde
@@ -62,6 +65,7 @@
   users:
   - msuchy
   - pingou
+  - nonamedotc
 
 - id: rlang
   title: R
