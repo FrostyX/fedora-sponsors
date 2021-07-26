@@ -63,7 +63,6 @@
 
 - id: python
   users:
-  - msuchy
   - pingou
   - nonamedotc
 
@@ -83,8 +82,6 @@
 
 - id: web
   title: Web development
-  users:
-  - msuchy
 
 - id: command-line
 - id: desktop
