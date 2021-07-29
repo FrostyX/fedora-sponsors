@@ -360,6 +360,7 @@ def main():
         "timezones": sponsors_by_timezone(sponsors),
         "languages": sponsors_by_native_language(sponsors),
         "build_tag": build_tag(),
+        "build_timestamp": datetime.now(),
     }
 
     for builder_class in [HtmlBuilder, DirHtmlBuilder, ProductionBuilder]:
