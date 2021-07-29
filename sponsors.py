@@ -345,8 +345,8 @@ class ProductionBuilder(DirHtmlBuilder):
 
 def main():
     try:
-        sponsors = get_sponsors_mock()
-        # sponsors = get_sponsors()
+        # sponsors = get_sponsors_mock()
+        sponsors = get_sponsors()
     except ConnectionError:
         print("Unable to get sponsors, try again.")
         sys.exit(1)
