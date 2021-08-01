@@ -1,5 +1,5 @@
 {% macro toc(titles) %}
-  <ul>
+  <ul id="toc">
   {% for title in titles %}
     <li><a href="#{{ title |urlencode }}">{{ title }}</a></li>
   {% endfor %}
