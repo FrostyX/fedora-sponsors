@@ -5,97 +5,182 @@
 
 from fedora.client import AuthError, AccountSystem, ServerError
 from six.moves import configparser
+from functools import wraps, cached_property
+from datetime import datetime, date, timedelta
 import time
 import xmlrpc
 import bugzilla
-import datetime
 import getpass
+import sys
 import os
 import six
 import requests
 
+
 DAYS_AGO = 365 * 2
-client = AccountSystem()
-bz = bugzilla.Bugzilla(url='https://bugzilla.redhat.com/xmlrpc.cgi')
 
-# cache mapping of user id to name
-map_id_to_name = {}
-def convert_id_to_name(user_id):
-    if user_id not in map_id_to_name:
-        map_id_to_name[user_id] = client.person_by_id(user_id).username
-    return map_id_to_name[user_id]
+# TODO This should not be global
+DIRECTLY_SPONSORED = {}
 
 
-def process_user(username):
-    good_guy = False
-    fas_user = client.person_by_username(username)
-    if fas_user.status != u'active':
+class IDtoNameCache:
+    """
+    Converting `user_id` to FAS username is an expensive operation, therefore
+    we want to cache the results and once known usernames simply return from
+    memory.
+
+    Maybe we don't need this whole class and can implement an username property
+    in `User` class.
+    """
+
+    # Cache mapping of user id to name
+    map_id_to_name = {}
+
+    @classmethod
+    def convert_id_to_name(cls, user_id, client):
+        if user_id not in cls.map_id_to_name:
+            name = client.person_by_id(user_id).username
+            cls.map_id_to_name[user_id] = name
+        return cls.map_id_to_name[user_id]
+
+
+def get_bugs(bz, fas_user):
+    """
+    Fetch all _recent_ Fedora Review bugs that are assigned to a given FAS user
+    """
+    query = {
+        'query_format': 'advanced',
+        'component': 'Package Review',
+        'classification': 'Fedora',
+        'product': 'Fedora',
+        'emailtype1': 'substring',
+        'email1': fas_user.bugzilla_email,
+        'emailassigned_to1': '1',
+        'list_id': '3718380',
+        'chfieldto': 'Now',
+        'chfieldfrom': '-{0}d'.format(DAYS_AGO),
+        'chfield': 'bug_status'
+    }
+    return bz.query(query)
+
+
+class User:
+    """
+    A high-level abstraction for interacting with users.
+    """
+    def __init__(self, username, client, bz):
+        self.username = username
+        self.client = client
+        self.bz = bz
+
+    @cached_property
+    def fas(self):
+        return self.client.person_by_username(self.username)
+
+    @cached_property
+    def human_name(self):
+        try:
+            return self.bz.getuser(self.fas.bugzilla_email).real_name
+        except xmlrpc.client.Fault:
+            return None
+
+
+def examine_activity_on_bug(user, bug):
+    """
+    Examine whether a user made any activity on a particular bug and return a
+    boolean value.
+    """
+
+    history = bug.get_history_raw()
+    # 177841 is FE-NEEDSPONSOR
+    if 177841 in bug.blocks:
+        # check if sponsor changed status of the bug
+        for change in history['bugs'][0]['history']:
+            if change['when'] > date.today() - timedelta(DAYS_AGO):
+                if change['who'] == user.human_name:
+                    for i in change['changes']:
+                        if 'field_name' in i:
+                            print(u"{0} <{1}> worked on BZ {2}".format(user.human_name, user.username, bug.id))
+                            return True
+                    else:
+                        continue # hack to break to outer for-loop if we called break 2 lines above
+                    break
+
+    else:
+        # check if sponsor removed FE-NEEDSPONSOR in past one year
+        for change in history['bugs'][0]['history']:
+            if change['when'] > date.today() - timedelta(DAYS_AGO):
+                if change['who'] == user.human_name:
+                    for i in change['changes']:
+                        if 'removed' in i and 'field_name' in i and \
+            i['removed'] == '177841' and i['field_name'] == 'blocks':
+                            print(u"{0} <{1}> removed FE-NEEDSPONSOR from BZ {2}".format(user.human_name, user.username, bug.id))
+                            return True
+                    else:
+                        continue # hack to break to outer for-loop if we called break 2 lines above
+                    break
+    return False
+
+
+def find_directly_sponsored(client):
+    """
+    Query FAS and find what users were sponsored and by whom.
+    """
+    packager_group = client.group_by_name("packager")
+    for role in packager_group.approved_roles:
+        if role.role_type != 'user':
+            continue
+
+        date_format = "%Y-%m-%d %H:%M:%S.%f+00:00"
+        approved_date = datetime.strptime(role.approval, date_format)
+        if approved_date <= datetime.today() - timedelta(DAYS_AGO):
+            continue
+
+        DIRECTLY_SPONSORED.setdefault(role.sponsor_id, [])
+        DIRECTLY_SPONSORED[role.sponsor_id].append(role.person_id)
+
+
+def process_user(username, client, bz):
+    """
+    Did this user do any sponsor activity?
+    """
+    user = User(username, client, bz)
+    if user.fas.status != "active":
         return None
-    try:
-        human_name = bz.getuser(fas_user.bugzilla_email).real_name
-    except xmlrpc.client.Fault:
-        return good_guy
 
-    #bz.url_to_query("https://bugzilla.redhat.com/buglist.cgi?chfield=bug_status&chfieldfrom=2014-08-13&chfieldto=Now&classification=Fedora&component=Package%20Review&email1=msuchy%40redhat.com&emailassigned_to1=1&emailtype1=substring&list_id=3718380&product=Fedora&query_format=advanced")
-    bugs = bz.query({'query_format': 'advanced',
-        'component': 'Package Review', 'classification': 'Fedora', 'product': 'Fedora',
-        'emailtype1': 'substring', 'email1': fas_user.bugzilla_email, 'emailassigned_to1': '1',
-        'list_id': '3718380', 'chfieldto': 'Now', 'chfieldfrom': '-{0}d'.format(DAYS_AGO),
-        'chfield': 'bug_status'})
-    for bug in bugs:
-        history = bug.get_history_raw()
-        # 177841 is FE-NEEDSPONSOR
-        if 177841 in bug.blocks:
-            # check if sponsor changed status of the bug
-            for change in history['bugs'][0]['history']:
-                if change['when'] > datetime.date.today() - datetime.timedelta(DAYS_AGO):
-                    if change['who'] == human_name:
-                        for i in change['changes']:
-                            if 'field_name' in i:
-                                good_guy = True
-                                print(u"{0} <{1}> worked on BZ {2}".format(human_name, username, bug.id))
-                                break # no need to check rest of bug
-                        else:
-                            continue # hack to break to outer for-loop if we called break 2 lines above
-                        break
+    if not user.human_name:
+        return None
 
-        else:
-            # check if sponsor removed FE-NEEDSPONSOR in past one year
-            for change in history['bugs'][0]['history']:
-                if change['when'] > datetime.date.today() - datetime.timedelta(DAYS_AGO):
-                    if change['who'] == human_name:
-                        for i in change['changes']:
-                            if 'removed' in i and 'field_name' in i and \
-			    i['removed'] == '177841' and i['field_name'] == 'blocks':
-                                good_guy = True
-                                print(u"{0} <{1}> removed FE-NEEDSPONSOR from BZ {2}".format(human_name, username, bug.id))
-                                break # no need to check rest of bug
-                        else:
-                            continue # hack to break to outer for-loop if we called break 2 lines above
-                        break
+    good_guy = False
+    for bug in get_bugs(bz, user.fas):
+        good_guy = examine_activity_on_bug(user, bug)
 
-    if fas_user.id in DIRECTLY_SPONSORED:
+    if user.fas.id in DIRECTLY_SPONSORED:
         good_guy = True
-        sponsored_users = DIRECTLY_SPONSORED[fas_user.id]
-        sponsored_users = [convert_id_to_name(u) for u in sponsored_users]
-        print(u"{0} <{1}> - directly sponsored: {2}".format(human_name, username, sponsored_users))
+        sponsored_users = DIRECTLY_SPONSORED[user.fas.id]
+        sponsored_users = [IDtoNameCache.convert_id_to_name(u, client)
+                           for u in sponsored_users]
+        print("{0} <{1}> - directly sponsored: {2}".format(
+            user.human_name, user.username, sponsored_users))
 
     if not good_guy:
-        print(u"{0} <{1}> - no recent sponsor activity".format(human_name, username))
+        print("{0} <{1}> - no recent sponsor activity".format(
+            user.human_name, user.username))
 
-    return fas_user if good_guy else False
+    return user.fas if good_guy else False
 
 
-def process_user_safe(username):
+def process_user_safe(username, client, bz):
     """
     Obtaining person information can fail because temporary network issues or
     server overload. Try again until we get the info successfully.
     """
     try:
-        return process_user(username)
+        return process_user(username, client, bz)
     except (ServerError, requests.RequestException):
         time.sleep(5)
-        return process_user_safe(username)
+        return process_user_safe(username, client, bz)
+
 
 def config_value(raw_config, key):
     try:
@@ -107,44 +192,49 @@ def config_value(raw_config, key):
         sys.stderr.write("Bad configuration file: {0}".format(err))
         sys.exit(1)
 
-raw_config = configparser.ConfigParser()
-filepath = os.path.join(os.path.expanduser("~"), ".config", "fedora")
-config = {}
-if raw_config.read(filepath):
-    client.username = config_value(raw_config, "username")
-    client.password = config_value(raw_config, "password")
 
-try:
-    packagers = client.group_members("packager")
-except AuthError as e:
-    print("Login interactively or create {0}".format(filepath))
-    client.username = input('Username: ').strip()
-    client.password = getpass.getpass('Password: ')
-    packagers = client.group_members("packager")
+def dump(good_guys):
+    """
+    Write active sponsors into an output file
+    """
+    good_guys_usernames = [sponsor.username for sponsor in good_guys if sponsor]
+    here = os.path.dirname(os.path.realpath(__file__))
+    dstdir = os.path.join(here, "_build")
+    if not os.path.exists(dstdir):
+        os.makedirs(dstdir)
+    dst = os.path.join(dstdir, "active-sponsors.list")
+    with open(dst, "w") as f:
+        f.write("\n".join(good_guys_usernames) + "\n")
 
-sponsors = [s.username for s in packagers if s.role_type == "sponsor"]
-packagers = [p.username for p in packagers]
-packager_group = client.group_by_name("packager")
 
-DIRECTLY_SPONSORED = {}
-for role in packager_group.approved_roles:
-    if role.role_type == u'user':
-        approved_date = datetime.datetime.strptime(role.approval, '%Y-%m-%d %H:%M:%S.%f+00:00')
-        if approved_date > datetime.datetime.today() - datetime.timedelta(DAYS_AGO):
-            if role.sponsor_id in DIRECTLY_SPONSORED:
-                DIRECTLY_SPONSORED[role.sponsor_id].extend([role.person_id])
-            else:
-                DIRECTLY_SPONSORED[role.sponsor_id] = [role.person_id]
+def main():
+    client = AccountSystem()
+    bz = bugzilla.Bugzilla(url='https://bugzilla.redhat.com/xmlrpc.cgi')
 
-good_guys = []
-for sponsor in sponsors:
-    good_guys.append(process_user_safe(sponsor))
+    raw_config = configparser.ConfigParser()
+    filepath = os.path.join(os.path.expanduser("~"), ".config", "fedora")
+    config = {}
+    if raw_config.read(filepath):
+        client.username = config_value(raw_config, "username")
+        client.password = config_value(raw_config, "password")
 
-good_guys_usernames = [sponsor.username for sponsor in good_guys if sponsor]
-here = os.path.dirname(os.path.realpath(__file__))
-dstdir = os.path.join(here, "_build")
-if not os.path.exists(dstdir):
-    os.makedirs(dstdir)
-dst = os.path.join(dstdir, "active-sponsors.list")
-with open(dst, "w") as f:
-    f.write("\n".join(good_guys_usernames) + "\n")
+    try:
+        packagers = client.group_members("packager")
+    except AuthError as e:
+        print("Login interactively or create {0}".format(filepath))
+        client.username = input('Username: ').strip()
+        client.password = getpass.getpass('Password: ')
+        packagers = client.group_members("packager")
+
+    sponsors = [s.username for s in packagers if s.role_type == "sponsor"]
+    packagers = [p.username for p in packagers]
+    find_directly_sponsored(client)
+
+    good_guys = []
+    for sponsor in sponsors:
+        good_guys.append(process_user_safe(sponsor, client, bz))
+    dump(good_guys)
+
+
+if __name__ == "__main__":
+    main()
