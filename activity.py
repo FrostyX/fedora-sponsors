@@ -16,6 +16,8 @@ import os
 import six
 import requests
 
+from groups import fetch_personal_config
+
 
 DAYS_AGO = 365 * 2
 
@@ -84,6 +86,10 @@ class User:
         except xmlrpc.client.Fault:
             return None
 
+    @cached_property
+    def sponsor_config(self):
+        return fetch_personal_config(self.username)
+
 
 def examine_activity_on_bug(user, bug):
     """
@@ -144,6 +150,7 @@ def process_user(username, client, bz):
     """
     Did this user do any sponsor activity?
     """
+    good_guy = False
     user = User(username, client, bz)
     if user.fas.status != "active":
         return None
@@ -151,10 +158,11 @@ def process_user(username, client, bz):
     if not user.human_name:
         return None
 
-    good_guy = False
+    # Examine activity in bugzilla
     for bug in get_bugs(bz, user.fas):
         good_guy = examine_activity_on_bug(user, bug)
 
+    # Examine sponsorships in FAS
     if user.fas.id in DIRECTLY_SPONSORED:
         good_guy = True
         sponsored_users = DIRECTLY_SPONSORED[user.fas.id]
@@ -162,6 +170,17 @@ def process_user(username, client, bz):
                            for u in sponsored_users]
         print("{0} <{1}> - directly sponsored: {2}".format(
             user.human_name, user.username, sponsored_users))
+
+    # We may not always discover a sponsor's activity accurately and display
+    # somebody as inactive even though he isn't.
+    # See https://github.com/FrostyX/fedora-sponsors/issues/13
+    #
+    # As a workaround let's consider all sponsors that created their sponsor.yaml
+    # config on https://fedorapeople.org/ active.
+    if user.sponsor_config:
+        good_guy = True
+        print("{0} <{1}> - has sponsor.yaml on fedorapeople.org"
+              .format(user.human_name, user.username))
 
     if not good_guy:
         print("{0} <{1}> - no recent sponsor activity".format(
