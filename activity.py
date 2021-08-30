@@ -81,10 +81,7 @@ class User:
 
     @cached_property
     def human_name(self):
-        try:
-            return self.bz.getuser(self.fas.bugzilla_email).real_name
-        except xmlrpc.client.Fault:
-            return None
+        return self.fas.human_name
 
     @cached_property
     def sponsor_config(self):
