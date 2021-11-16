@@ -123,6 +123,22 @@ The production instance
 https://docs.pagure.org/fedora-sponsors
 
 
+## Deployment Automation
+
+We have an automation set-up to rebuild the page weekly. There is a
+script that clones this repository, builds everything, and deploys it
+to the production, and runs some tests against that
+build. Unfortunately, we don't have a staging instance, so we need to
+run tests against the production, but better late than never. See
+
+https://gist.github.com/FrostyX/13fdf75cdab40087087f0f22bb45fef7
+
+It is executed weekly by Cron on my (@FrostyX) personal server. This
+is not an exclusive way of re-building the page. Everybody (with the
+correct permissions) can re-build the page, or set up their own
+automatization.
+
+
 ## Screenshots
 
 Page with all sponsors:
