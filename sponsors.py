@@ -366,6 +366,7 @@ def main():
     for builder_class in [HtmlBuilder, DirHtmlBuilder, ProductionBuilder]:
         builder = builder_class(data)
         builder.build()
+        time.sleep(1)
 
 
 if __name__ == "__main__":
