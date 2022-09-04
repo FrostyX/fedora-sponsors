@@ -15,3 +15,6 @@ deploy:
 	git commit -av -m "New build" && \
 	git push
 	rm -rf _build/deploy
+
+deps:
+	sudo dnf install -y python3-fasjson-client
