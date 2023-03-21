@@ -233,10 +233,22 @@ class Builder:
         ]
 
     @property
+    def api(self):
+        return [
+            "active-sponsors.list",
+            "interests.yaml",
+            "languages.yaml",
+        ]
+
+    @property
     def options(self):
         return {}
 
     def build(self):
+        self.build_pages()
+        self.build_api()
+
+    def build_pages(self):
         for name in self.templates:
             builddir = self.builddir_rel_path(name)
             rendered = self.render_template(
@@ -246,6 +258,15 @@ class Builder:
                 **self.data
             )
             self.dump_html(name, rendered)
+
+    def build_api(self):
+        dstdir = os.path.join(self.builddir, "api")
+        if not os.path.exists(dstdir):
+            os.makedirs(dstdir)
+        for name in self.api:
+            src = os.path.join("_build", name)
+            dst = os.path.join(dstdir, name)
+            shutil.copy2(src, dst)
 
     def render_template(self, name, **kwargs):
         jinja_env = Environment(loader=FileSystemLoader("templates"))
