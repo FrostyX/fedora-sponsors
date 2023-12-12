@@ -143,11 +143,11 @@ automatization.
 
 Page with all sponsors:
 
-[![sponsors-all-3.png](http://pagure.io/fork/praiskup/copr/copr/issue/raw/files/caa62011cfa2106d9785836114ea7cf3df7f90e17eb86e045ffcef024f5399c3-sponsors-all-3.png)](http://pagure.io/fork/praiskup/copr/copr/issue/raw/files/caa62011cfa2106d9785836114ea7cf3df7f90e17eb86e045ffcef024f5399c3-sponsors-all-3.png)
+![All sponsors](img/sponsors-all-3.png)
 
 Page with grouped sponsors into the areas that they are interested in:
 
-[![sponsors-interests-3.png](http://pagure.io/fork/praiskup/copr/copr/issue/raw/files/da4ec152454a5fae0691ad4871cd6e13df07a2df0f269cdc5f871eaf22788491-sponsors-interests-3.png)](http://pagure.io/fork/praiskup/copr/copr/issue/raw/files/da4ec152454a5fae0691ad4871cd6e13df07a2df0f269cdc5f871eaf22788491-sponsors-interests-3.png)
+![All sponsors](img/sponsors-interests-3.png)
 
 
 ## See also
