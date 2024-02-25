@@ -3,10 +3,11 @@
 # vim: noai:ts=4:sw=4:expandtab
 # Original author: Miroslav Suchý
 
-from fedora.client import AuthError, AccountSystem, ServerError
+from fasjson_client import Client
 from six.moves import configparser
 from functools import wraps, cached_property
 from datetime import datetime, date, timedelta
+from munch import Munch
 import time
 import xmlrpc
 import bugzilla
@@ -46,7 +47,7 @@ class IDtoNameCache:
         return cls.map_id_to_name[user_id]
 
 
-def get_bugs(bz, fas_user):
+def get_bugs(bz, user):
     """
     Fetch all _recent_ Fedora Review bugs that are assigned to a given FAS user
     """
@@ -56,7 +57,7 @@ def get_bugs(bz, fas_user):
         'classification': 'Fedora',
         'product': 'Fedora',
         'emailtype1': 'substring',
-        'email1': fas_user.bugzilla_email,
+        'email1': user.email,
         'emailassigned_to1': '1',
         'list_id': '3718380',
         'chfieldto': 'Now',
@@ -77,15 +78,24 @@ class User:
 
     @cached_property
     def fas(self):
-        return self.client.person_by_username(self.username)
+        return Munch(self.client.get_user(username=self.username).result)
 
     @cached_property
     def human_name(self):
         return self.fas.human_name
 
     @cached_property
+    def email(self):
+        return self.fas.rhbzemail or self.fas.emails[0]
+
+    @cached_property
     def sponsor_config(self):
         return fetch_personal_config(self.username)
+
+    @cached_property
+    def is_active(self):
+        # This is probably not correct but it is good enough for now
+        return not self.fas.locked and not self.fas.is_private
 
 
 def examine_activity_on_bug(user, bug):
@@ -95,12 +105,23 @@ def examine_activity_on_bug(user, bug):
     """
 
     history = bug.get_history_raw()
+
+    for change in history["bugs"][0]["history"]:
+        if change["when"] < date.today() - timedelta(DAYS_AGO):
+            continue
+        if change["who"] != user.email:
+            continue
+        for inner_change in change["changes"]:
+            if inner_change["added"] == "fedora-review+":
+                print("{0} <{1}> gave fedora-review+ for BZ {2}".format(user.human_name, user.username, bug.id))
+                return True
+
     # 177841 is FE-NEEDSPONSOR
     if 177841 in bug.blocks:
         # check if sponsor changed status of the bug
         for change in history['bugs'][0]['history']:
             if change['when'] > date.today() - timedelta(DAYS_AGO):
-                if change['who'] == user.human_name:
+                if change['who'] == user.email:
                     for i in change['changes']:
                         if 'field_name' in i:
                             print(u"{0} <{1}> worked on BZ {2}".format(user.human_name, user.username, bug.id))
@@ -113,7 +134,7 @@ def examine_activity_on_bug(user, bug):
         # check if sponsor removed FE-NEEDSPONSOR in past one year
         for change in history['bugs'][0]['history']:
             if change['when'] > date.today() - timedelta(DAYS_AGO):
-                if change['who'] == user.human_name:
+                if change['who'] == user.email:
                     for i in change['changes']:
                         if 'removed' in i and 'field_name' in i and \
             i['removed'] == '177841' and i['field_name'] == 'blocks':
@@ -129,6 +150,15 @@ def find_directly_sponsored(client):
     """
     Query FAS and find what users were sponsored and by whom.
     """
+    # Previously we used the python-fedora package to query the packager group
+    # members, who sponsored them and when. Since we use fasjson, this is not
+    # possible to do anymore.
+    # https://github.com/fedora-infra/fasjson/issues/522
+    #
+    # We might want to rewrite the code using somethign like
+    # https://gist.github.com/FrostyX/47defa18348fbb917e73d7b2e7660ca2
+    return
+
     packager_group = client.group_by_name("packager")
     for role in packager_group.approved_roles:
         if role.role_type != 'user':
@@ -149,24 +179,28 @@ def process_user(username, client, bz):
     """
     good_guy = False
     user = User(username, client, bz)
-    if user.fas.status != "active":
+    if not user.is_active:
         return None
 
     if not user.human_name:
         return None
 
     # Examine activity in bugzilla
-    for bug in get_bugs(bz, user.fas):
+    for bug in get_bugs(bz, user):
         good_guy = examine_activity_on_bug(user, bug)
+        if good_guy:
+            break
 
     # Examine sponsorships in FAS
-    if user.fas.id in DIRECTLY_SPONSORED:
-        good_guy = True
-        sponsored_users = DIRECTLY_SPONSORED[user.fas.id]
-        sponsored_users = [IDtoNameCache.convert_id_to_name(u, client)
-                           for u in sponsored_users]
-        print("{0} <{1}> - directly sponsored: {2}".format(
-            user.human_name, user.username, sponsored_users))
+    # FIXME DIRECTLY_SPONSORED is empty, so we can temporarily disable the code
+    # instead of fixing it
+    # if user.fas.id in DIRECTLY_SPONSORED:
+    #     good_guy = True
+    #     sponsored_users = DIRECTLY_SPONSORED[user.fas.id]
+    #     sponsored_users = [IDtoNameCache.convert_id_to_name(u, client)
+    #                        for u in sponsored_users]
+    #     print("{0} <{1}> - directly sponsored: {2}".format(
+    #         user.human_name, user.username, sponsored_users))
 
     # We may not always discover a sponsor's activity accurately and display
     # somebody as inactive even though he isn't.
@@ -193,7 +227,7 @@ def process_user_safe(username, client, bz):
     """
     try:
         return process_user(username, client, bz)
-    except (ServerError, requests.RequestException):
+    except requests.RequestException:
         time.sleep(5)
         return process_user_safe(username, client, bz)
 
@@ -224,26 +258,12 @@ def dump(good_guys):
 
 
 def main():
-    client = AccountSystem()
     bz = bugzilla.Bugzilla(url='https://bugzilla.redhat.com/xmlrpc.cgi')
 
-    raw_config = configparser.ConfigParser()
-    filepath = os.path.join(os.path.expanduser("~"), ".config", "fedora")
-    config = {}
-    if raw_config.read(filepath):
-        client.username = config_value(raw_config, "username")
-        client.password = config_value(raw_config, "password")
+    client = Client("https://fasjson.fedoraproject.org")
+    sponsors = client.list_group_sponsors(groupname="packager").result
+    sponsors = [x["username"] for x in sponsors]
 
-    try:
-        packagers = client.group_members("packager")
-    except AuthError as e:
-        print("Login interactively or create {0}".format(filepath))
-        client.username = input('Username: ').strip()
-        client.password = getpass.getpass('Password: ')
-        packagers = client.group_members("packager")
-
-    sponsors = [s.username for s in packagers if s.role_type == "sponsor"]
-    packagers = [p.username for p in packagers]
     find_directly_sponsored(client)
 
     good_guys = []
