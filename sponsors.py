@@ -49,10 +49,8 @@ class Sponsor(munch.Munch):
 
     @property
     def contact_url(self):
-        # This shouldn't be link to the old FAS but at this momment,
-        # accounts.fedoraproject.org doesn't show email addresses
-        url =  "https://admin.fedoraproject.org/accounts/user/view/{0}"
-        return url.format(self.username)
+        # FAS now shows the contact information directly in the profile page
+        return self.accounts_fpo_url
 
     @property
     def is_active(self):
