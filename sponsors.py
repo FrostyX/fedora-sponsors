@@ -112,6 +112,9 @@ def sponsors_from_yaml(path, sponsors):
 
     for _, group in result.items():
         set_sponsors_activity(group)
+        # Sort sponsors alphabetically by their username so that they are
+        # always in a predictable order
+        group.sort(key=lambda x: x.username)
     return result
 
 
@@ -371,6 +374,11 @@ def main():
         sys.exit(1)
 
     set_sponsors_activity(sponsors)
+
+    # Sort sponsors alphabetically by their username so that they are always in
+    # a predictable order
+    sponsors.sort(key=lambda x: x.username)
+
     data = {
         "sponsors": sponsors,
         "active": active_sponsors(sponsors),
