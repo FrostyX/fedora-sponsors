@@ -6,6 +6,7 @@ import yaml
 import html
 import pytz
 import munch
+import json
 from datetime import datetime
 from requests import ConnectionError
 from jinja2 import Template
@@ -268,6 +269,27 @@ class Builder:
             src = os.path.join("_build", name)
             dst = os.path.join(dstdir, name)
             shutil.copy2(src, dst)
+        self._build_sponsors_json(dstdir)
+
+    def _build_sponsors_json(self, dstdir):
+        schema = [
+            "username",
+            "is_active",
+            "human_name",
+            "github_username",
+            "gitlab_username",
+            "website",
+            "ircnicks",
+            "timezone",
+        ]
+        result = []
+        for sponsor in self.data["sponsors"]:
+            subset = {k: getattr(sponsor, k) for k in schema}
+            result.append(subset)
+
+        path = os.path.join(dstdir, "sponsors.json")
+        with open(path, "w") as fp:
+            json.dump(result, fp)
 
     def render_template(self, name, **kwargs):
         jinja_env = Environment(loader=FileSystemLoader("templates"))
