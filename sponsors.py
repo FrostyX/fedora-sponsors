@@ -237,6 +237,7 @@ class Builder:
     @property
     def api(self):
         return [
+            "sponsors.list",
             "active-sponsors.list",
             "interests.yaml",
             "languages.yaml",

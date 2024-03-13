@@ -243,18 +243,17 @@ def config_value(raw_config, key):
         sys.exit(1)
 
 
-def dump(good_guys):
+def dump(usernames, filename):
     """
-    Write active sponsors into an output file
+    Write sponsors into an output file
     """
-    good_guys_usernames = [sponsor.username for sponsor in good_guys if sponsor]
     here = os.path.dirname(os.path.realpath(__file__))
     dstdir = os.path.join(here, "_build")
     if not os.path.exists(dstdir):
         os.makedirs(dstdir)
-    dst = os.path.join(dstdir, "active-sponsors.list")
+    dst = os.path.join(dstdir, filename)
     with open(dst, "w") as f:
-        f.write("\n".join(good_guys_usernames) + "\n")
+        f.write("\n".join(usernames) + "\n")
 
 
 def main():
@@ -268,9 +267,16 @@ def main():
 
     good_guys = []
     for sponsor in sponsors:
-        good_guys.append(process_user_safe(sponsor, client, bz))
-    dump(good_guys)
+        good_guy = process_user_safe(sponsor, client, bz)
+        if not good_guy:
+            continue
+        good_guys.append(good_guy.username)
 
+    # Dump the list of active sponsors
+    dump(good_guys, "active-sponsors.list")
+
+    # And dump the list of all sponsors for a good measure
+    dump(sponsors, "sponsors.list")
 
 if __name__ == "__main__":
     main()
