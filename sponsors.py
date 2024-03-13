@@ -7,6 +7,8 @@ import html
 import pytz
 import munch
 import json
+import bugzilla
+import xmlrpc
 from datetime import datetime
 from requests import ConnectionError
 from jinja2 import Template
@@ -56,6 +58,22 @@ class Sponsor(munch.Munch):
     @property
     def is_active(self):
         return getattr(self, "active", False)
+
+    @property
+    def bugzilla_user_id(self):
+        """
+        This is required by the Fedora Review Service to check if a reviewer is
+        a packager sponsor. Alternativelly it could use email but we don't want
+        to publish it.
+        """
+        bz = bugzilla.Bugzilla(url="https://bugzilla.redhat.com")
+        email = self.rhbzemail or self.emails[0]
+        try:
+            rhbzuser = bz.getuser(email)
+            return rhbzuser.userid
+        # This happens for ~3 users
+        except xmlrpc.client.Error:
+            return None
 
 
 def get_fas_client():
@@ -282,9 +300,12 @@ class Builder:
             "website",
             "ircnicks",
             "timezone",
+            "bugzilla_user_id",
         ]
+        sponsors = self.data["sponsors"]
         result = []
-        for sponsor in self.data["sponsors"]:
+        for i, sponsor in enumerate(sponsors):
+            print("[{0}/{1}] {2}".format(i, len(sponsors), sponsor.username))
             subset = {k: getattr(sponsor, k) for k in schema}
             result.append(subset)
 
