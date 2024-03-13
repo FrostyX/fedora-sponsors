@@ -79,6 +79,20 @@ statically generated site, so your configuration will be used during
 the next rebuild.
 
 
+## Public API
+
+All information that is visible on the website is also available via API.
+Unfortunately, the format is inconsistent.
+
+```bash
+curl https://docs.pagure.org/fedora-sponsors/api/sponsors.json |jq
+curl https://docs.pagure.org/fedora-sponsors/api/sponsors.list
+curl https://docs.pagure.org/fedora-sponsors/api/active-sponsors.list
+curl https://docs.pagure.org/fedora-sponsors/api/interests.yaml
+curl https://docs.pagure.org/fedora-sponsors/api/languages.yaml
+```
+
+
 ## Development
 
 Create `~/.config/fedora` in the following format:
