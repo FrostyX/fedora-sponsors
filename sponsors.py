@@ -435,6 +435,7 @@ def main():
     }
 
     for builder_class in [HtmlBuilder, DirHtmlBuilder, ProductionBuilder]:
+        print("Building through {0}".format(builder_class.__name__))
         builder = builder_class(data)
         builder.build()
         time.sleep(1)
