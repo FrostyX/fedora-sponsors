@@ -8,6 +8,7 @@ from six.moves import configparser
 from functools import wraps, cached_property
 from datetime import datetime, date, timedelta
 from munch import Munch
+import json
 import time
 import xmlrpc
 import bugzilla
@@ -243,7 +244,7 @@ def config_value(raw_config, key):
         sys.exit(1)
 
 
-def dump(usernames, filename):
+def dump(users, filename, as_json=False):
     """
     Write sponsors into an output file
     """
@@ -253,7 +254,10 @@ def dump(usernames, filename):
         os.makedirs(dstdir)
     dst = os.path.join(dstdir, filename)
     with open(dst, "w") as f:
-        f.write("\n".join(usernames) + "\n")
+        if as_json:
+            json.dump(users, f)
+        else:
+            f.write("\n".join(users) + "\n")
 
 
 def main():
@@ -261,12 +265,12 @@ def main():
 
     client = Client("https://fasjson.fedoraproject.org")
     sponsors = client.list_group_sponsors(groupname="packager").result
-    sponsors = [x["username"] for x in sponsors]
+    usernames = [x["username"] for x in sponsors]
 
     find_directly_sponsored(client)
 
     good_guys = []
-    for sponsor in sponsors:
+    for sponsor in usernames:
         good_guy = process_user_safe(sponsor, client, bz)
         if not good_guy:
             continue
@@ -276,7 +280,13 @@ def main():
     dump(good_guys, "active-sponsors.list")
 
     # And dump the list of all sponsors for a good measure
-    dump(sponsors, "sponsors.list")
+    dump(usernames, "sponsors.list")
+
+    # And dump additional user information as JSON
+    # I had some sort of intention with this bug I left it WIP and I now cannot
+    # remember what information I wanted to dump and why
+    # dump(sponsors, "bugzilla-sponsors.json", as_json=True)
+
 
 if __name__ == "__main__":
     main()
