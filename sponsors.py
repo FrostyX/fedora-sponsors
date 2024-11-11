@@ -51,11 +51,6 @@ class Sponsor(munch.Munch):
         return libravatar_url(email=self.emails[0], size=200, default="retro")
 
     @property
-    def contact_url(self):
-        # FAS now shows the contact information directly in the profile page
-        return self.accounts_fpo_url
-
-    @property
     def is_active(self):
         return getattr(self, "active", False)
 
