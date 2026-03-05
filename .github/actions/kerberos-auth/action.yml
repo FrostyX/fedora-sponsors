@@ -1,0 +1,37 @@
+name: "Kerberos Auth"
+description: "Authenticate to Kerberos using a base64-encoded keytab secret"
+inputs:
+  principal:
+    description: "Kerberos principal (e.g. user@REALM)"
+    required: true
+  keytab_b64:
+    description: "Base64-encoded keytab"
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Install Kerberos tools
+      shell: bash
+      run: dnf install -y krb5-workstation
+
+    - name: kinit
+      shell: bash
+      env:
+        KEYTAB_B64: ${{ inputs.keytab_b64 }}
+        PRINCIPAL: ${{ inputs.principal }}
+        KRB5CCNAME: FILE:/tmp/krb5cc
+      run: |
+        [[ -n "$PRINCIPAL" ]] || { echo "Missing principal secret"; exit 1; }
+        [[ -n "$KEYTAB_B64" ]] || { echo "Missing keytab_b64 secret"; exit 1; }
+
+        kt="$RUNNER_TEMP/kt"
+        printf '%s' "$KEYTAB_B64" | base64 --decode > "$kt"
+        chmod 600 "$kt"
+        kinit -kt "$kt" "$PRINCIPAL"
+        echo "KRB5CCNAME=$KRB5CCNAME" >> "$GITHUB_ENV"
+
+    - name: Cleanup keytab file
+      if: always()
+      shell: bash
+      run: rm -f "$RUNNER_TEMP/kt"

@@ -1,0 +1,74 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches:
+      - github-pages
+  pull_request:
+    branches:
+      - github-pages
+  schedule:
+    # Every Monday at midnight UTC
+    - cron: "0 0 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: fedora:latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install make
+        run: dnf install -y make
+
+      - name: Install dependencies
+        run: make deps
+
+      - uses: ./.github/actions/kerberos-auth
+        with:
+          principal: ${{ secrets.KERBEROS_PRINCIPAL }}
+          keytab_b64: ${{ secrets.KERBEROS_KEYTAB_B64 }}
+
+      - name: For some reason this is needed, otherwise the auth fails
+        run: klist
+
+      - name: make activity
+        run: make activity
+
+      - name: make groups
+        run: make groups
+
+      - name: make build
+        run: make build
+
+      # TODO make check based on
+      # https://gist.github.com/FrostyX/13fdf75cdab40087087f0f22bb45fef7
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _build/dirhtml
+
+  deploy:
+    # TODO uncomment
+    # if: github.ref == 'refs/heads/github-pages'
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
