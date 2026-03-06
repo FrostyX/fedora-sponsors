@@ -3,10 +3,8 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches:
-      - github-pages
+      - main
   pull_request:
-    branches:
-      - github-pages
   schedule:
     # Every Monday at midnight UTC
     - cron: "0 0 * * 1"
