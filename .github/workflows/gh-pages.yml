@@ -50,8 +50,8 @@ jobs:
       - name: make build
         run: make build
 
-      # TODO make check based on
-      # https://gist.github.com/FrostyX/13fdf75cdab40087087f0f22bb45fef7
+      - name: make check
+        run: make check
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
@@ -59,8 +59,7 @@ jobs:
           path: _build/dirhtml
 
   deploy:
-    # TODO uncomment
-    # if: github.ref == 'refs/heads/github-pages'
+    if: github.ref == 'refs/heads/github-pages'
     needs: build
     runs-on: ubuntu-latest
     environment:

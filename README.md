@@ -122,35 +122,22 @@ Fetch the up-to-date information about sponsors and build the page
 $ make build
 ```
 
+Basic check that it went at least somewhat correctly
+
+```
+$ make check
+```
+
 Navigate to `_build/html/index.html` in a web browser.
 
 
 ## Deployment
 
-Deploy the latest build to production
-
-```
-$ make deploy
-```
+The website is automatically deployed to GitHub Pages from the `main` branch
+and automatically re-built every Monday. See the `gh-pages.yml` workflow.
 
 The production instance
-https://docs.pagure.org/fedora-sponsors
-
-
-## Deployment Automation
-
-We have an automation set-up to rebuild the page weekly. There is a
-script that clones this repository, builds everything, and deploys it
-to the production, and runs some tests against that
-build. Unfortunately, we don't have a staging instance, so we need to
-run tests against the production, but better late than never. See
-
-https://gist.github.com/FrostyX/13fdf75cdab40087087f0f22bb45fef7
-
-It is executed weekly by Cron on my (@FrostyX) personal server. This
-is not an exclusive way of re-building the page. Everybody (with the
-correct permissions) can re-build the page, or set up their own
-automatization.
+https://packager-sponsors.fedoraproject.org/
 
 
 ## Screenshots
