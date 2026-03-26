@@ -1,6 +1,6 @@
 # Fedora Packager Sponsors
 
-https://docs.pagure.org/fedora-sponsors
+https://packager-sponsors.fedoraproject.org
 
 A static page displaying list of all current Fedora packager
 sponsors.
@@ -85,11 +85,11 @@ All information that is visible on the website is also available via API.
 Unfortunately, the format is inconsistent.
 
 ```bash
-curl https://docs.pagure.org/fedora-sponsors/api/sponsors.json |jq
-curl https://docs.pagure.org/fedora-sponsors/api/sponsors.list
-curl https://docs.pagure.org/fedora-sponsors/api/active-sponsors.list
-curl https://docs.pagure.org/fedora-sponsors/api/interests.yaml
-curl https://docs.pagure.org/fedora-sponsors/api/languages.yaml
+curl https://packager-sponsors.fedoraproject.org/api/sponsors.json |jq
+curl https://packager-sponsors.fedoraproject.org/api/sponsors.list
+curl https://packager-sponsors.fedoraproject.org/api/active-sponsors.list
+curl https://packager-sponsors.fedoraproject.org/api/interests.yaml
+curl https://packager-sponsors.fedoraproject.org/api/languages.yaml
 ```
 
 
